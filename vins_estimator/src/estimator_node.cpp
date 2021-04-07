@@ -27,6 +27,9 @@ std::mutex m_state;
 std::mutex i_buf;
 std::mutex m_estimator;
 
+std::mutex m_realsense;
+sensor_msgs::Imu imu_realense;
+
 double latest_time;
 Eigen::Vector3d tmp_P;
 Eigen::Quaterniond tmp_Q;
@@ -338,6 +341,29 @@ void process()
     }
 }
 
+
+void imu_a_callback(const sensor_msgs::ImuConstPtr &imu_msg)
+{
+    m_realsense.lock();
+    imu_realense.header = imu_msg->header;
+    imu_realense.linear_acceleration.x = imu_msg->linear_acceleration.x;
+    imu_realense.linear_acceleration.y = imu_msg->linear_acceleration.y;
+    imu_realense.linear_acceleration.z = imu_msg->linear_acceleration.z;
+    m_realsense.unlock();
+}
+
+
+void imu_W_callback(const sensor_msgs::ImuConstPtr &imu_msg)
+{
+    m_realsense.lock();
+    imu_realense.header = imu_msg->header;
+    imu_realense.angular_velocity.x = imu_msg->angular_velocity.x;
+    imu_realense.angular_velocity.y = imu_msg->angular_velocity.y;
+    imu_realense.angular_velocity.z = imu_msg->angular_velocity.z;
+    m_realsense.unlock();
+}
+
+
 int main(int argc, char **argv)
 {
     ros::init(argc, argv, "vins_estimator");
@@ -357,8 +383,33 @@ int main(int argc, char **argv)
     ros::Subscriber sub_restart = n.subscribe("/feature_tracker/restart", 2000, restart_callback);
     ros::Subscriber sub_relo_points = n.subscribe("/pose_graph/match_points", 2000, relocalization_callback);
 
+    ros::Subscriber sub_realsense_a = n.subscribe("/device_0/sensor_2/Accel_0/imu/data", 2000, imu_a_callback, ros::TransportHints().tcpNoDelay());
+    ros::Subscriber sub_realsense_W = n.subscribe("/device_0/sensor_2/Gyro_0/imu/data", 2000, imu_W_callback, ros::TransportHints().tcpNoDelay());
+    ros::Publisher pub_realsense = n.advertise<sensor_msgs::Imu>("/camera/imu/data_raw", 1000);
+
     std::thread measurement_process{process};
-    ros::spin();
+    // ros::spin();
+
+    ros::Rate loop_rate(60);
+    double t_pre = 0.0;
+    while (ros::ok())
+    {
+        double t_now = imu_realense.header.stamp.toSec();
+        if (t_pre >= t_now)
+        {
+            ros::spinOnce();
+            loop_rate.sleep();
+            continue;
+        }
+
+        m_realsense.lock();
+        pub_realsense.publish(imu_realense);
+        m_realsense.unlock();
+        t_pre = t_now;
+
+        ros::spinOnce();
+        loop_rate.sleep();
+    }
 
     return 0;
 }
