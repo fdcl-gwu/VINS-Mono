@@ -383,13 +383,20 @@ int main(int argc, char **argv)
     ros::Subscriber sub_restart = n.subscribe("/feature_tracker/restart", 2000, restart_callback);
     ros::Subscriber sub_relo_points = n.subscribe("/pose_graph/match_points", 2000, relocalization_callback);
 
-    ros::Subscriber sub_realsense_a = n.subscribe("/device_0/sensor_2/Accel_0/imu/data", 2000, imu_a_callback, ros::TransportHints().tcpNoDelay());
-    ros::Subscriber sub_realsense_W = n.subscribe("/device_0/sensor_2/Gyro_0/imu/data", 2000, imu_W_callback, ros::TransportHints().tcpNoDelay());
-    ros::Publisher pub_realsense = n.advertise<sensor_msgs::Imu>("/camera/imu/data_raw", 1000);
+    // Playing from bag file
+    // ros::Subscriber sub_realsense_a = n.subscribe("/device_0/sensor_2/Accel_0/imu/data", 2000, imu_a_callback, ros::TransportHints().tcpNoDelay());
+    // ros::Subscriber sub_realsense_W = n.subscribe("/device_0/sensor_2/Gyro_0/imu/data", 2000, imu_W_callback, ros::TransportHints().tcpNoDelay());
+    
+    // Direct connection to the device
+    //ros::Subscriber sub_realsense_a = n.subscribe("/camera/accel/imu_info", 2000, imu_a_callback, ros::TransportHints().tcpNoDelay());
+    //ros::Subscriber sub_realsense_W = n.subscribe("/camera/gyro/sample", 2000, imu_W_callback, ros::TransportHints().tcpNoDelay());
+    
+    //ros::Publisher pub_realsense = n.advertise<sensor_msgs::Imu>("/camera/imu/data_raw", 1000);
 
     std::thread measurement_process{process};
-    // ros::spin();
+    ros::spin();
 
+    /*
     ros::Rate loop_rate(60);
     double t_pre = 0.0;
     while (ros::ok())
@@ -410,6 +417,7 @@ int main(int argc, char **argv)
         ros::spinOnce();
         loop_rate.sleep();
     }
+    */
 
     return 0;
 }
