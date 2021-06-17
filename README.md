@@ -1,3 +1,11 @@
+# Running FDCL Version
+```sh
+roslaunch vins_estimator realsense_device.launch
+
+# From Realsense WS
+roslaunch realsense2_camera rs_fdcl.launch
+```
+
 # VINS-Mono
 ## A Robust and Versatile Monocular Visual-Inertial State Estimator
 
