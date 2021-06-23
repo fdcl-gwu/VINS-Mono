@@ -1,9 +1,21 @@
 # Running FDCL Version
+
+## Running the Estimator with a Physically Connecter RealSense Camera
 ```sh
 roslaunch vins_estimator realsense_device.launch
 
-# From Realsense WS
+# From  fdcl-gwu/realsense-ros workspace
 roslaunch realsense2_camera rs_fdcl.launch
+```
+
+
+## Running the Estimator with a Bag FIle
+```sh
+roslaunch vins_estimator realsense_bag.launch
+roslaunch realsense2_camera rs_fdcl.launch
+
+# To play only the required topics
+rosbag play realsense_data.bag --topics /device_0/sensor_2/Accel_0/imu/data /device_0/sensor_2/Gyro_0/imu/data /device_0/sensor_1/Color_0/image/data
 ```
 
 # VINS-Mono

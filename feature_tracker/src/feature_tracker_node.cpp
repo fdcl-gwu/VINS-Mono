@@ -76,6 +76,20 @@ void img_callback(const sensor_msgs::ImageConstPtr &img_msg)
     }
     else
         ptr = cv_bridge::toCvCopy(img_msg, sensor_msgs::image_encodings::MONO8);
+    
+    // cv::circle(ptr->image, cv::Point(50, 50), 10, CV_RGB(255, 0, 0));
+
+    cv::Point pt1(0, img_msg->height);
+    cv::Point pt2(img_msg->width, img_msg->height - 120);
+    cv::rectangle(ptr->image, pt1, pt2, cv::Scalar(0, 0, 0), -1);
+
+    cv::Point pt3(0, 0);
+    cv::Point pt4(150, img_msg->height);
+    cv::rectangle(ptr->image, pt3, pt4, cv::Scalar(0, 0, 0), -1);
+
+    cv::Point pt5(img_msg->width, 0);
+    cv::Point pt6(img_msg->width - 150, img_msg->height);
+    cv::rectangle(ptr->image, pt5, pt6, cv::Scalar(0, 0, 0), -1);
 
     cv::Mat show_img = ptr->image;
     TicToc t_r;
